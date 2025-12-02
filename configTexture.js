@@ -1,13 +1,16 @@
 /*******************生成立方体纹理对象*******************************/
 function configureCubeMap(program) {
-	gl.activeTexture(gl.TEXTURE0);
+    gl.activeTexture(gl.TEXTURE3);
 
     cubeMap = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, cubeMap);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
 
-    gl.uniform1i(gl.getUniformLocation(program, "cubeSampler"), 0);
+    gl.uniform1i(gl.getUniformLocation(program, "cubeSampler"), 3);
 
 	var faces = [
 	    ["./skybox/right.jpg", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
@@ -18,15 +21,23 @@ function configureCubeMap(program) {
         ["./skybox/back.jpg", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
 		];
     
+    // 先填充占位像素，避免未加载完成时采样为黑
+    var placeholder = new Uint8Array([0, 0, 0, 255]);
     for (var i = 0; i < 6; i++) {
-        var face = faces[i][1];
-        var image = new Image();
-        image.src = faces[i][0];
-        image.onload = function (cubeMap, face, image) {
-            return function () {
-		        gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-            }
-        }(cubeMap, face, image);
+        gl.texImage2D(faces[i][1], 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, placeholder);
+    }
+
+    // 异步加载各面图像，确保上传前激活与绑定
+    for (var i = 0; i < 6; i++) {
+        (function(path, faceEnum){
+            var image = new Image();
+            image.src = path;
+            image.onload = function(){
+                gl.activeTexture(gl.TEXTURE3);
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, cubeMap);
+                gl.texImage2D(faceEnum, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            };
+        })(faces[i][0], faces[i][1]);
     }
 }
 
