@@ -17,6 +17,7 @@ uniform vec3 lightColor; // 入射光颜色
 uniform sampler2D diffuseTexture;
 uniform sampler2D depthTexture;
 uniform samplerCube cubeSampler; // 盒子纹理采样器
+uniform int u_isMirror;
 
 // TODO3: 添加阴影计算，返回1表示是阴影，返回0表示非阴影
 float shadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
@@ -81,6 +82,14 @@ void main()
     else
         lightDir = normalize(u_lightPosition.xyz); // 平行光直接用方向（假定已是单位向量）
     vec3 viewDir = normalize(viewPos - FragPos);
+
+    if (u_isMirror == 1) {
+        vec3 I = normalize(FragPos - viewPos);
+        vec3 R = reflect(I, norm);
+        vec3 envColor = texture(cubeSampler, R).rgb;
+        FragColor = vec4(envColor, 1.0);
+        return;
+    }
 
     // TODO2: 根据 Phong Shading 计算 ambient, diffuse, specular（在片元着色器中）
     vec3 ambient = ambientStrength * lightColor * TextureColor;

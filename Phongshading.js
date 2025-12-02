@@ -188,24 +188,25 @@ function render(){
 	gl.useProgram(program);
 	gl.uniform4fv( gl.getUniformLocation(program,  "u_lightPosition"),flatten(lightPosition) );    
     //传递几何变换矩阵，视点和投影矩阵
-	ModelMatrix=formModelMatrix();
-	ViewMatrix=formViewMatrix();
-	ProjectionMatrix=formProjectMatrix();
-	gl.uniformMatrix4fv( gl.getUniformLocation(program,"u_ModelMatrix"), false, flatten(ModelMatrix));
-	gl.uniformMatrix4fv( gl.getUniformLocation(program,"u_ViewMatrix"), false, flatten(ViewMatrix));
-    gl.uniformMatrix4fv( gl.getUniformLocation( program, "u_ProjectionMatrix" ),false, flatten(ProjectionMatrix));	
-    gl.uniformMatrix4fv( gl.getUniformLocation( program, "u_LightSpaceMatrix" ),false, flatten(lightSpaceMatrix));	
-	
-	gl.uniform3fv( gl.getUniformLocation( program, "viewPos" ), flatten(eyePos));
-	
-	//set texture
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
+    ModelMatrix=formModelMatrix();
+    ViewMatrix=formViewMatrix();
+    ProjectionMatrix=formProjectMatrix();
+    gl.uniformMatrix4fv( gl.getUniformLocation(program,"u_ModelMatrix"), false, flatten(ModelMatrix));
+    gl.uniformMatrix4fv( gl.getUniformLocation(program,"u_ViewMatrix"), false, flatten(ViewMatrix));
+    gl.uniformMatrix4fv( gl.getUniformLocation( program, "u_ProjectionMatrix" ),false, flatten(ProjectionMatrix)); 
+    gl.uniformMatrix4fv( gl.getUniformLocation( program, "u_LightSpaceMatrix" ),false, flatten(lightSpaceMatrix)); 
+    
+    gl.uniform3fv( gl.getUniformLocation( program, "viewPos" ), flatten(eyePos));
+    
+    //set texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
     gl.uniform1i(gl.getUniformLocation(program, "diffuseTexture"), 0);
-	gl.activeTexture(gl.TEXTURE1);
-	gl.bindTexture(gl.TEXTURE_2D, depthTexture);
-    gl.uniform1i(gl.getUniformLocation(program, "depthTexture"), 1);	
-	gl.drawArrays( gl.TRIANGLES, 0, cubenumPoints);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, depthTexture);
+    gl.uniform1i(gl.getUniformLocation(program, "depthTexture"), 1);
+    gl.uniform1i(gl.getUniformLocation(program, "u_isMirror"), 1);
+    gl.drawArrays( gl.TRIANGLES, 0, cubenumPoints);
 	
 	var Translate = mat4(1, 0, 0, 0,
 					0, 1, 0, -1,
@@ -215,12 +216,13 @@ function render(){
 					0, 0.1, 0, 0,
 					0, 0, 2, 0,
 					0, 0, 0, 1);
-	ModelMatrix = mult(Translate, Scale);
-	gl.uniformMatrix4fv(gl.getUniformLocation(program,"u_ModelMatrix"), false, flatten(ModelMatrix));
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, planeTexture);
+    ModelMatrix = mult(Translate, Scale);
+    gl.uniformMatrix4fv(gl.getUniformLocation(program,"u_ModelMatrix"), false, flatten(ModelMatrix));
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, planeTexture);
     gl.uniform1i(gl.getUniformLocation(program, "diffuseTexture"), 0);
-	gl.drawArrays( gl.TRIANGLES, cubenumPoints, floornumPoints);//floor
+    gl.uniform1i(gl.getUniformLocation(program, "u_isMirror"), 0);
+    gl.drawArrays( gl.TRIANGLES, cubenumPoints, floornumPoints);//floor
 
 	// draw lamp
 	gl.useProgram(lampPorgram);

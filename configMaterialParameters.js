@@ -8,7 +8,7 @@ function configurePhongModelMeterialParameters(program) {
 
 	var lightColor = vec3(1.0, 1.0, 1.0); //入射光拟定为白光Id,Is采用之
 	//----------传递材质的常量参数给shader--------------------------------------------------------
-	gl.uniform1f( gl.getUniformLocation(program,  "ambientKaStrength"), ambientStrength);
+    gl.uniform1f( gl.getUniformLocation(program,  "ambientStrength"), ambientStrength);
 	gl.uniform1f( gl.getUniformLocation(program,  "diffuseStrength"), diffuseStrength );
 	gl.uniform1f( gl.getUniformLocation(program,  "specularStrength"), specularStrength );
 	gl.uniform1f( gl.getUniformLocation(program,  "shininess"),materialShininess );
